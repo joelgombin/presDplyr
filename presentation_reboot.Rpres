@@ -1,0 +1,262 @@
+<style>
+.footer {
+    color: black;
+    background: #E8E8E8;
+    position: fixed;
+    top: 90%;
+    text-align:center;
+    width:100%;
+}
+.midcenter img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%)
+}
+.center p, 
+.center ul {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.small-code pre code {
+  font-size: 1em;
+}
+
+.reveal h1, .reveal h2, .reveal h3 {
+  word-wrap: normal;
+  -moz-hyphens: none;
+}
+</style>
+<!-- analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-18024542-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+dplyr, tidyr : Coder (presque) comme on parle
+========================================================
+autosize: true
+transition: rotate
+transition-speed: slow
+font-family: 'Helvetica'
+
+<p></p>
+<p></p>
+
+
+<div class="midcenter"><div style="margin-left:200px;margin-top:0px;"><img style="margin:0px; background-color:transparent; border:0px; box-shadow:none;" src="images/dplyr-sticker.png"></img></div></div>
+
+<div class="footer" style="margin-top:-0px;background-color:transparent;"><SPAN STYLE="font-size:80%;font-weight:bold;"><a href="mailto:joel.gombin@gmail.com">Joël Gombin</a><BR>CHERPA-IEP Aix / CURAPP-Uni. de Picardie<BR><a href="http://www.meetup.com/http://www.meetup.com/fr-FR/R-user-group-Aix-Marseille//">R User Group Aix-Marseille</a><br>28 janvier 2016</SPAN></div>
+
+
+Une nouvelle génération de packages 
+========================================================
+
+AKA le ["Hadleyverse"](https://github.com/hadley/) 
+
+<img src='images/hadley.png' style="position: absolute;left: 50%;transform: translateX(-50%)"></img>
+
+<div class="footer" style="margin-top:-0px;"><SPAN STYLE="font-size:80%">Slides at <a href="http://joelgombin.fr/rugmars/dplyr.html">http://joelgombin.fr/rugmars/dplyr.html</a></SPAN></div>
+
+Une nouvelle génération de packages 
+======================================
+type: center
+
+[`dplyr`](https://github.com/hadley/dplyr), [`tidyr`](https://github.com/hadley/tidyr), [`ggplot2`](https://github.com/hadley/ggplot2) bien sûr, [`ggvis`](https://github.com/rstudio/ggvis), [`httr`](https://github.com/hadley/httr), [`rvest`](https://github.com/hadley/rvest), [readr](https://github.com/hadley/readr), etc. 
+
+Des packages centrés sur le point fort de R
+==============================
+type: center
+
+`dplyr` et `tidyr` sont des réimplémentations de `plyr` et `reshape` spécialisés sur les dataframes.
+
+Une syntaxe renouvelée
+========================
+
+Deux principes :
+
+- l'usage de verbes - c'est-à-dire une fonction qui prend un data.frame comme premier argument (`group_by`, `summarise`, `select`, `filter`, `arrange`, `spread`, `gather`)
+- l'usage du pipe `%>%` (qui se lit "then" et vient du package [`magrittr`](https://github.com/smbache/magrittr))
+
+<div class="footer" style="margin-top:-150px;background-color:transparent;"><SPAN STYLE="font-size:80%;font-weight:bold;"><img src='images/pipe.png'></img></SPAN></div>
+
+=======================
+type:small-code
+```{r, message=FALSE}
+library(nycflights13)
+library(dplyr)
+flights
+
+```
+
+Permet une lecture plus aisée du code
+========================================
+type:small-code
+````{r, message=FALSE}
+
+flights %>%
+  filter(carrier %in% "UA")
+
+````
+
+Permet une lecture plus aisée du code
+========================================
+type:small-code
+
+````{r, message=FALSE}
+
+flights %>%
+  filter(carrier %in% "UA") %>%
+  select(year, month, day, carrier, origin, dest)
+
+````
+
+Permet une lecture plus aisée du code
+========================================
+type:small-code
+
+````{r, message=FALSE}
+
+flights %>%
+  group_by(year, month, day) %>%
+  summarise(delay = mean(arr_delay, na.rm = TRUE))
+
+````
+
+Permet une lecture plus aisée du code
+========================================
+type:small-code
+
+
+````{r, message=FALSE}
+
+flights %>%
+  group_by(paste(year, month, day, sep = "-")) %>%
+  summarise(delay = mean(arr_delay, na.rm = TRUE)) %>%
+  arrange(desc(delay))
+
+````
+
+Permet une lecture plus aisée du code
+========================================
+type:small-code
+
+```{r, message=FALSE}
+
+flights %>%
+  mutate(date = paste(year, month, day, sep = "-")) %>%
+  group_by(date) %>%
+  summarise(delay = mean(arr_delay, na.rm = TRUE)) %>%
+  arrange(desc(delay))
+
+```
+
+
+Résumé des principaux verbes
+========================================
+
+- `filter` : subset en fonction de conditions logiques
+- `select` : sélectionne certaines variables seulement
+- `arrange` : trie le data.frame selon certaines variables
+- `mutate` : crée de nouvelles variables
+- `group_by` : crée des groupes
+- `summarise` : agrège un dataframe ou un groupe en une ligne
+
+Et aussi...
+==============
+
+- `tally`/`count` : tabulation (compte les lignes)
+- `do` : permet de faire n'importe quelle opération sur des groupes (ex : `lm`)
+- sélection aisée de variables : `data %>% select(varA:varZ)` ou `data %>% select(-varB)` ou encore `data %>% select(starts_with("var"))`
+- joins (en style SQL)
+- `bind_rows` / `bind_cols`
+- `sample_n()` et `sample_frac`
+- écrit en C++, donc *rapide*
+
+Les tables peuvent venir de sources différentes
+=========================================
+- de `datatable`
+- et SURTOUT de [bases de données](https://cran.r-project.org/web/packages/dplyr/vignettes/databases.html) (SQL) !
+- mais aussi [Spark](https://github.com/RevolutionAnalytics/dplyr-spark), ImpalaDB, etc.
+
+=====================
+type: small-code
+
+```{r}
+my_db <- src_sqlite("my_db.sqlite3", create = T)
+flights_sqlite <- copy_to(my_db, flights, temporary = TRUE, indexes = list(
+  c("year", "month", "day"), "carrier", "tailnum"))
+
+flights_sqlite %>%
+  filter(origin == "JFK") %>%
+  arrange(desc(distance))
+  
+
+````
+
+Oui, mais...
+============
+
+- on ne peut pas programmer avec `dplyr` ?
+    + si : avec les fonctions "standard evaluation" du type `select_`
+
+- il n'y a pas d'autocomplétion dans Rstudio ?
+    + si !
+    
+- Il n'y a pas de parallélisation possible ?
+    + Pas dans `dplyr` mais en travail : [multidplyr](https://github.com/hadley/multidplyr)
+
+tidyr, un complément logique de dplyr
+=================================
+
+`tidyr` est à `dplyr` ce que `reshape` est à `plyr`.
+
+Deux (et deux seulement !) fonctions :
+
+- `gather` (format large -> format long)
+- `spread` (format long -> format large)
+
+avec un système clé-valeur. 
+
+==============================
+type: small-code
+
+```{r, message=FALSE}
+library(tidyr)
+messy <- data.frame(
+  name = c("Wilbur", "Petunia", "Gregory"),
+  a = c(67, 80, 64),
+  b = c(56, 90, 50)
+  )
+  
+messy %>%
+  gather(drug, heartrate, a:b)
+```
+
+
+Pour conclure
+==============
+
+`dplyr`, `tidyr` et d'autres packages permettent :
+
+- une écriture plus fluide
+- une plus grande efficacité et rapidité
+- une plus grande abstraction
+- d'avoir une plus belle beau et des cheveux brillants.
+
+Alors, n'hésitez plus !
+
+
+===================
+type: midcenter 
+
+![](images/meme.jpg)
+
+
+
